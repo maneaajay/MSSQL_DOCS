@@ -1,0 +1,46 @@
+----for the backup of all database using sp_msforeachdb 
+EXECUTE sp_msforeachdb 'USE ?  
+IF DB_NAME() NOT IN(''master'',''msdb'',''tempdb'',''model'',''ReportServer'')  
+BACKUP DATABASE ? TO DISK = ''d:?.bak''' -- change the path for specific folder if you want it
+
+
+EXECUTE sp_msforeachdb 'USE ?  
+IF DB_NAME() NOT IN(''master'',''msdb'',''tempdb'',''model'',''ReportServer'')  
+BACKUP DATABASE ? TO DISK = ''D:\backup\?.bak'''
+
+
+exec xp_cmdshell'md d:\backup' 
+
+sp_configure 'xp_cmdshell',1
+go
+reconfigure
+go
+
+
+-----Showing every object in each database
+declare @cmd varchar(500)  
+set @cmd='select "?", count(*) as TotalObjects from [?].dbo.sysobjects'  
+exec sp_MSforeachdb @cmd  
+
+--- 
+Showing the size of each database
+declare @cmd varchar(500)  
+set @cmd='use [?];exec sp_spaceused '  
+exec sp_MSforeachdb @cmd 
+
+----
+Showing the column names in each database
+declare @cmd varchar(500)  
+set @cmd='SELECT name FROM ?.SYS.COLUMNS'  
+exec SP_MSFOREACHDB @cmd   
+
+--
+Change Owner of all databases to 'sa'
+
+EXEC sp_MSforeachdb 'USE ?; EXEC sp_changedbowner ''sa'''
+
+--
+Check the Logical and Physical integrity of all objects in the database
+sp_MSforeachdb 'DBCC CHECKDB(?)'
+
+--

@@ -1,0 +1,7 @@
+use PerfDB
+go
+SELECT * FROM EMP
+ORDER BY NAME DESC, SALARY DESC
+GO 40
+
+kill 55
